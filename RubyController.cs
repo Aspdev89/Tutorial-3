@@ -10,6 +10,10 @@ using UnityEngine.SceneManagement;
 public class RubyController : MonoBehaviour
 {
     public float speed = 3.0f;
+    public float duration = 10.0f;
+    bool isSped;
+    float PowerupTimer;
+    public Text Timertext;
 
     public int maxHealth = 5;
     public int cogs = 4;
@@ -52,6 +56,7 @@ public class RubyController : MonoBehaviour
     AudioSource audioSource;
     public AudioClip collectedClip;
     public AudioClip collectedClip2;
+    public AudioClip GetAmmoSound;
 
     void Start()
     {
@@ -64,6 +69,7 @@ public class RubyController : MonoBehaviour
         scoreText.text = score.ToString();
         gameOverText.text = "";
         ammoText.text = cogs.ToString();
+        Timertext.text = "";
         gameOver = false;
     }
 
@@ -113,7 +119,7 @@ public class RubyController : MonoBehaviour
                 }
                 if (level != 2)
                 {
-                    if (count == 4)
+                    if (count == 5)
                     {
                         level = 2;
                         SceneManager.LoadScene("Main2");
@@ -131,6 +137,18 @@ public class RubyController : MonoBehaviour
             invincibleTimer -= Time.deltaTime;
             if (invincibleTimer < 0)
                 isInvincible = false;
+        }
+
+        if (isSped)
+        {
+            PowerupTimer -= Time.deltaTime;
+            Timertext.text = PowerupTimer.ToString();
+            if (PowerupTimer < 0)
+            {
+                isSped = false;
+                speed = 3.0f;
+                Timertext.text = "";
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.C))
@@ -152,6 +170,17 @@ public class RubyController : MonoBehaviour
         position.y = position.y + speed * vertical * Time.deltaTime;
 
         rigidbody2d.MovePosition(position);
+    }
+
+    public void ChangeSpeed(int amount)
+    {
+        if (currentHealth != 0)
+        {
+            speed = 6.0f;
+
+            isSped = true;
+            PowerupTimer = duration;
+        }
     }
 
     public void ChangeHealth(int amount)
@@ -181,10 +210,13 @@ public class RubyController : MonoBehaviour
         {
             gameOver = true;
             speed = 0.0f;
+            isSped = false;
+            Timertext.text = "";
         }
         if (gameOver == true)
         {
             gameOverText.text = "You Lose! Restart?";
+            cogs = 0;
             musicSource.Stop();
             musicSource.clip = loseMusic;
 
@@ -202,14 +234,14 @@ public class RubyController : MonoBehaviour
 
         if (level != 2)
         {
-            if (count == 4)
+            if (count == 5)
             {
                 jambiText.text = "Jambi: Thanks for bringing me the horizon! See me to reach the next level!";
             }
         }
         if (level != 0)
         {
-            if (count == 4)
+            if (count == 5)
             {
                 gameOver = true;
                 //count += 1; count = 9;
@@ -218,6 +250,9 @@ public class RubyController : MonoBehaviour
             if (gameOver == true)
             {
                 gameOverText.text = "You Win! Game by Joey DeSimone";
+                speed = 0.0f;
+                isSped = false;
+                Timertext.text = "";
                 musicSource.Stop();
                 musicSource.clip = winMusic;
 
@@ -243,7 +278,10 @@ public class RubyController : MonoBehaviour
             cogs += 4;
             ammoText.text = cogs.ToString();
             Destroy(collision.collider.gameObject);
-            PlaySound(collectedClip);
+            // PlaySound(collectedClip);
+            audioSource.PlayOneShot(GetAmmoSound);
         }
     }
+
+
 }

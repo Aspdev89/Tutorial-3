@@ -5,6 +5,7 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     Rigidbody2D rigidbody2d;
+    public int hitcount = 1;
 
     void Awake()
     {
@@ -27,11 +28,11 @@ public class Projectile : MonoBehaviour
     void OnCollisionEnter2D(Collision2D other)
     {
         EnemyController e = other.collider.GetComponent<EnemyController>();
-       // RubyController a = GetComponent<RubyController>();
+        // RubyController a = GetComponent<RubyController>();
         if (e != null)
         {
             e.Fix();
-            
+
         }
 
 
@@ -40,6 +41,14 @@ public class Projectile : MonoBehaviour
         {
             f.Fix();
         }
+
+        UltimateEnemyController g = other.collider.GetComponent<UltimateEnemyController>();
+        if (g != null)
+        {
+            g.Fix();
+
+        }
+
 
         Destroy(gameObject);
     }
